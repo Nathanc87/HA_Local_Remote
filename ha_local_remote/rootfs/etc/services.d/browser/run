@@ -48,4 +48,4 @@ cleanup() {
 trap cleanup EXIT INT TERM
 
 # Serve noVNC and bridge its WebSocket connection to the loopback-only VNC server.
-exec websockify --web=/usr/share/novnc/ 6080 127.0.0.1:5900
+exec /opt/websockify-venv/bin/websockify --web=/usr/share/novnc/ 6080 127.0.0.1:5900
