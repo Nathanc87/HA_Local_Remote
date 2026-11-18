@@ -1,0 +1,19 @@
+name: "HA Local Remote"
+version: "0.1.0"
+slug: "ha_local_remote"
+description: "Browse local HTTP and HTTPS device interfaces through Home Assistant."
+url: "https://github.com/Nathanc87/HA_Local_Remote"
+arch:
+  - amd64
+  - aarch64
+startup: application
+boot: auto
+init: false
+ingress: true
+ingress_port: 6080
+panel_icon: mdi:web
+panel_title: Network Browser
+map:
+  - share:rw
+options: {}
+schema: {}
