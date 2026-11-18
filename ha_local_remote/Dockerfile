@@ -10,10 +10,13 @@ RUN apk add --no-cache \
     font-noto-emoji \
     novnc \
     openbox \
-    py3-websockify \
+    python3 \
+    py3-pip \
     ttf-dejavu \
     x11vnc \
-    xvfb
+    xvfb \
+ && python3 -m venv /opt/websockify-venv \
+ && /opt/websockify-venv/bin/pip install --no-cache-dir --upgrade pip websockify
 
 COPY rootfs /
 
