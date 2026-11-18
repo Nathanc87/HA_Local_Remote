@@ -1,26 +1,51 @@
 #!/usr/bin/with-contenv bash
-set -e
+set -Eeuo pipefail
 
-mkdir -p /share/ha_local_remote/chromium
-export HOME=/share/ha_local_remote
-export DISPLAY=:0
+APP_DIR="/share/ha_local_remote"
+PROFILE_DIR="${APP_DIR}/chromium"
+DISPLAY=":0"
 
-# Start a virtual desktop for Chromium.
-Xvfb :0 -screen 0 1440x900x24 -ac +extension RANDR &
-sleep 1
+mkdir -p "${PROFILE_DIR}"
+export HOME="${APP_DIR}"
+export DISPLAY
+
+# Virtual desktop: 1440x900 is a useful desktop layout and scales on mobile.
+Xvfb "${DISPLAY}" -screen 0 1440x900x24 -ac +extension RANDR &
+XVFB_PID=$!
+sleep 2
+
 openbox-session &
+OPENBOX_PID=$!
+sleep 1
 
-# Keep a persistent browser profile in the add-on's shared storage.
-chromium-browser \
+# Launch a normal Chromium window (not kiosk mode) so its address bar,
+# tabs, navigation controls and HTTPS indicators are available in noVNC.
+chromium \
   --no-sandbox \
   --disable-dev-shm-usage \
-  --user-data-dir=/share/ha_local_remote/chromium \
+  --disable-gpu \
+  --user-data-dir="${PROFILE_DIR}" \
   --no-first-run \
   --no-default-browser-check \
   --start-maximized \
   about:blank &
+CHROMIUM_PID=$!
 
-# VNC listens on loopback only. The websockify/noVNC endpoint is exposed
-# on the add-on Ingress port and must not be published directly to the WAN.
-x11vnc -display :0 -forever -shared -nopw -localhost -rfbport 5900 &
-exec websockify --web=/usr/share/novnc/ 6080 localhost:5900
+# VNC is bound to loopback. The only web-facing endpoint is noVNC via
+# Home Assistant Ingress; do not publish port 6080 directly to the internet.
+x11vnc \
+  -display "${DISPLAY}" \
+  -forever \
+  -shared \
+  -nopw \
+  -localhost \
+  -rfbport 5900 &
+X11VNC_PID=$!
+
+cleanup() {
+  kill "${CHROMIUM_PID:-}" "${X11VNC_PID:-}" "${OPENBOX_PID:-}" "${XVFB_PID:-}" 2>/dev/null || true
+}
+trap cleanup EXIT INT TERM
+
+# Serve noVNC and bridge its WebSocket connection to the loopback-only VNC server.
+exec websockify --web=/usr/share/novnc/ 6080 127.0.0.1:5900
