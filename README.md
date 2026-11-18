@@ -1,62 +1,42 @@
 # HA Local Remote
 
-A Home Assistant add-on that runs a real Chromium browser on your Home Assistant network and streams its desktop into the Home Assistant interface.
+A Home Assistant add-on that runs a real Chromium browser on your Home Assistant network and streams its desktop into Home Assistant.
 
-## Version 0.1.1 — first browser build
+## Version 0.1.2
 
-This first build provides a remote Chromium desktop through noVNC. You get the normal Chromium window, including its address bar, tabs, navigation buttons, cookies and website JavaScript. Enter internal URLs such as:
+First browser prototype, with a build dependency fix for websockify.
 
-- `http://192.168.1.1`
-- `https://192.168.1.10`
-- `http://my-server.local:8080`
-
-The browser makes the network requests from inside the add-on container, not from your phone or desktop. This is what allows it to reach LAN-only devices while you are away.
+- Chromium runs inside the add-on on the Home Assistant network.
+- noVNC streams the browser desktop through Home Assistant Ingress.
+- Normal Chromium address bar, tabs, cookies and website JavaScript.
+- Persistent browser profile under `/share/ha_local_remote/chromium`.
 
 ## Install
 
 1. In Home Assistant, open **Settings → Add-ons → Add-on Store**.
 2. Open the three-dot menu and choose **Repositories**.
 3. Add `https://github.com/Nathanc87/HA_Local_Remote`.
-4. Find **HA Local Remote** under the local add-ons, install it and start it.
-5. Open the add-on's **Network Browser** panel.
+4. Refresh the store, install **HA Local Remote**, then start it.
+5. Open the **Network Browser** panel.
 
-If the repository does not appear immediately, refresh the add-on store.
+## Try
 
-## How it works
+- `http://192.168.1.1`
+- `https://192.168.1.10`
+- `http://device-hostname.local:8080`
 
-- Chromium runs inside the add-on on the Home Assistant network.
-- Xvfb provides a virtual 1440×900 display.
-- Openbox manages the Chromium window.
-- x11vnc exposes the display only on loopback inside the container.
-- noVNC/websockify streams the display through Home Assistant Ingress.
+Requests originate from the add-on container, not from your phone or desktop.
 
-The Chromium profile is stored in `/share/ha_local_remote/chromium`, so cookies and sessions persist across restarts.
+## Architecture
 
-## Important limitations
+Chromium runs under Xvfb and Openbox. x11vnc listens on loopback only; websockify/noVNC exposes the display through the add-on's Ingress port.
 
-This is the first functional browser build, not a finished polished browser application.
+## Limitations and security
 
-- The interface is a streamed desktop, not yet a custom address-bar/bookmark UI.
-- It uses one shared Chromium profile/session.
-- Mobile use is supported by the responsive noVNC client, but small-screen interaction may be less comfortable than desktop.
-- Bookmarks, browser history controls outside Chromium, per-user sessions, downloads management and configurable display size are not implemented yet.
-- The container has broad access to the networks reachable from Home Assistant. There is not yet a destination allow-list.
+This is experimental and has not yet been validated on every Home Assistant architecture.
 
-## Security
-
-- Keep access behind Home Assistant authentication and Ingress.
-- Do not expose port 6080 or VNC port 5900 directly to the internet.
-- Use a strong Home Assistant account and MFA.
-- Anyone permitted to open this add-on can control its shared browser session and access devices reachable from the add-on.
-- Treat this initial version as experimental and install only on a trusted network.
-
-## Supported architectures
-
-amd64 and aarch64.
-
-## Troubleshooting
-
-- If the panel is blank, check the add-on log for Chromium, Xvfb or websockify startup errors.
-- If the browser opens but a device does not load, check that the add-on can route to that device's subnet and that the device permits HTTP/HTTPS access.
-- Internal DNS names require the add-on container to use a DNS server that can resolve them.
-- Self-signed HTTPS certificates may show browser warnings. Only proceed when you trust the device and its certificate.
+- One shared Chromium session; anyone allowed to open the panel can control it.
+- No destination allow-list, per-user isolation, custom bookmarks, or download manager yet.
+- Keep it behind Home Assistant authentication. Do not expose ports 6080 or 5900 directly to the internet.
+- The add-on can reach networks routable from the Home Assistant host. Use only on a trusted network.
+- Self-signed HTTPS certificates may display browser warnings.
