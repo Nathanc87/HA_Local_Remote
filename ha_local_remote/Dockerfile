@@ -16,6 +16,7 @@ RUN apk add --no-cache \
     xvfb
 
 COPY rootfs /
+
 RUN chmod a+x /etc/services.d/browser/run
 
 EXPOSE 6080
