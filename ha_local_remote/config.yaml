@@ -1,5 +1,5 @@
 name: "HA Local Remote"
-version: "0.1.1"
+version: "0.1.2"
 slug: "ha_local_remote"
 description: "Remote desktop browser for accessing local HTTP and HTTPS interfaces."
 url: "https://github.com/Nathanc87/HA_Local_Remote"
