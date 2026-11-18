@@ -1,7 +1,7 @@
 name: "HA Local Remote"
-version: "0.1.0"
+version: "0.1.1"
 slug: "ha_local_remote"
-description: "Browse local HTTP and HTTPS device interfaces through Home Assistant."
+description: "Remote desktop browser for accessing local HTTP and HTTPS interfaces."
 url: "https://github.com/Nathanc87/HA_Local_Remote"
 arch:
   - amd64
