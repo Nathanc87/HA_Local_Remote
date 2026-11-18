@@ -1,5 +1,5 @@
 name: "HA Local Remote"
-version: "0.1.4"
+version: "0.1.5"
 slug: "ha_local_remote"
 description: "Remote desktop browser for accessing local HTTP and HTTPS interfaces."
 url: "https://github.com/Nathanc87/HA_Local_Remote"
@@ -11,7 +11,7 @@ boot: auto
 init: false
 ingress: true
 ingress_port: 6080
-ingress_entry: vnc.html
+ingress_entry: "vnc.html?autoconnect=true&resize=scale"
 panel_icon: mdi:web
 panel_title: Network Browser
 map:
