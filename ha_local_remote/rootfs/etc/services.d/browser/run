@@ -24,6 +24,9 @@ chromium \
   --no-sandbox \
   --disable-dev-shm-usage \
   --disable-gpu \
+  --disable-vulkan \
+  --disable-features=Vulkan \
+  --use-gl=swiftshader \
   --user-data-dir="${PROFILE_DIR}" \
   --no-first-run \
   --no-default-browser-check \
